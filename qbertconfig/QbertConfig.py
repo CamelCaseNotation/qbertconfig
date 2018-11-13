@@ -25,7 +25,6 @@ LOG = logging.getLogger(__name__)
 class QbertConfig(object):
     """ Combination of QbertClient and Kubeconfig """
     def __init__(self, **kwargs):
-        # Might not have an initialized qbert client all the time
         self._initialize_qbert_client(**kwargs)
         self.master_kubeconfig = Kubeconfig(**kwargs)
 
