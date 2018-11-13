@@ -57,4 +57,8 @@ def main(args=None):
 
     qc = QbertConfig(**{'kcfg_path': args.kubeconfig, 'cloud': cloud})
     dis = Dispatcher(qc)
-    dis.do(args.operation, args)
+
+    try:
+        dis.do(args.operation, args)
+    except:
+        parser.print_help()

@@ -16,7 +16,6 @@ import os
 import sys
 import logging
 import tempfile
-from yaml import safe_dump
 
 # local imports
 from qbertconfig.QbertConfig import QbertConfig
