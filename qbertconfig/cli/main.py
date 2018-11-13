@@ -52,7 +52,8 @@ def main(args=None):
         cloud = cloud_config.get_one_cloud(argparse=args)
     except MissingRequiredOptions as ex:
         # We may not need this, don't fail
-        LOG.warn("Unable to validate openstack credentials. Bad things may happen soon... Check this error out: \n" + ex.message)
+        LOG.warn("Unable to validate openstack credentials."
+                 "Bad things may happen soon... Check this error out: \n" + ex.message)
 
     qc = QbertConfig(**{'kcfg_path': args.kubeconfig, 'cloud': cloud})
     dis = Dispatcher(qc)
