@@ -55,6 +55,7 @@ def main(args=None):
         # We may not need this, don't fail
         LOG.warn("Unable to validate openstack credentials."
                  "Bad things may happen soon... Check this error out: \n" + ex.message)
+        sys.exit(1)
 
     qc = Fetcher(kubeconfig=Kubeconfig(kcfg_path=args.kubeconfig), os_cloud=cloud)
     dis = Dispatcher(qc)

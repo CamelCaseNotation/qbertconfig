@@ -37,9 +37,7 @@ class Fetcher(object):
 
         if not self.kubeconfig:
             self.kubeconfig = Kubeconfig()
-        if not self.os_config:
-            # this will decide whether to use env vars, or a clouds.yaml
-            self.os_config = openstack.config.OpenStackConfig()
+
         self.qbert_session = self._initialize_qbert_client(os_config, os_cloud)
 
     def _initialize_qbert_client(self, os_config=None, os_cloud=None):
@@ -60,18 +58,18 @@ class Fetcher(object):
 
         # Cloud not provided, so see if we need to create config and then get cloud
         if not os_config:
+            # this will decide whether to use env vars, or a clouds.yaml
             self.os_config = openstack.config.OpenStackConfig()
 
         # Now use config to get a cloud
-        else:
-            try:
-                self.os_cloud = self.os_config.get_one_cloud()
-            except MissingRequiredOptions as ex:
-                # If this fails, it means no other credentials were provided another way
-                LOG.error("Unable to validate openstack credentials. Check this error out: \n" + ex.message)
-                LOG.error("Check to ensure your OpenStack credentials are in clouds.yaml"
-                          " or available as environment variables")
-                sys.exit(1)
+        try:
+            self.os_cloud = self.os_config.get_one_cloud()
+        except MissingRequiredOptions as e:
+            # If this fails, it means no other credentials were provided another way
+            LOG.error("Unable to validate openstack credentials. Check this error out: \n" + e.message)
+            LOG.error("Check to ensure your OpenStack credentials are in clouds.yaml"
+                      " or available as environment variables")
+            raise e
         return QbertClient(os_cloud=self.os_cloud)
 
     def save(self):
