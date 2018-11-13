@@ -19,9 +19,8 @@ LOG = logging.getLogger(__name__)
 
 class Dispatcher(object):
 
-    def __init__(self, cloud, kubeconfig):
-        self.cloud = cloud
-        self.kubeconfig = kubeconfig
+    def __init__(self, qbert_config):
+        self.qbert_config = qbert_config
 
     def do(self, operation, targets):
         # TODO: input sanitization
@@ -30,5 +29,5 @@ class Dispatcher(object):
     def fetch(self, args):
         cluster_name = args.name if args.name else None
         cluster_uuid = args.uuid if args.uuid else None
-        self.kubeconfig.fetch(self.cloud, cluster_name=cluster_name, cluster_uuid=cluster_uuid)
-        self.kubeconfig.save()
+        self.qbert_config.fetch(cluster_name=cluster_name, cluster_uuid=cluster_uuid)
+        self.qbert_config.save()

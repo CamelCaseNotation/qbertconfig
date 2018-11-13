@@ -29,7 +29,7 @@ class QbertClient(object):
         if not self.cloud:
             raise CloudNotFoundException
 
-        self.client = self.cloud.get_session_client('qbert', version=2)
+        self.client = self.cloud.get_session_client('qbert', version='2')
 
     def list_clusters(self):
         response = self.client.get('/clusters')
