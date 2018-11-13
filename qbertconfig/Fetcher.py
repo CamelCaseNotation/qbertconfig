@@ -13,7 +13,6 @@
 # under the License.
 import logging
 import openstack
-import sys
 from keystoneauth1.exceptions import MissingRequiredOptions
 
 # Local imports
