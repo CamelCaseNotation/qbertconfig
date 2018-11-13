@@ -26,7 +26,7 @@ class KubeconfigMergeTest(QcTestCase):
         """
         Adding a kubeconfig that exists should not change the object
         """
-        initial_kubeconfig = self.kubeconfig
+        initial_kubeconfig = self.qc.master_kubeconfig
         incoming_kubeconfig = Kubeconfig(kcfg=samples.BASE_TEST_KUBECONFIG)
 
         initial_kubeconfig.merge_kubeconfigs(incoming_kubeconfig)
@@ -36,7 +36,7 @@ class KubeconfigMergeTest(QcTestCase):
         """
         Adding a kubeconfig with some matching entities should append new ones and update others
         """
-        initial_kubeconfig = self.kubeconfig
+        initial_kubeconfig = self.qc.master_kubeconfig
         incoming_kubeconfig = Kubeconfig(kcfg=samples.PARTIAL_UNIQUE_KUBECONFIG)
 
         initial_kubeconfig.merge_kubeconfigs(incoming_kubeconfig)

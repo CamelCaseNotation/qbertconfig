@@ -18,7 +18,7 @@ import logging
 import tempfile
 
 # local imports
-from qbertconfig.Kubeconfig import Kubeconfig
+from qbertconfig.QbertConfig import QbertConfig
 from qbertconfig.cli.dispatcher import Dispatcher
 import tests.samples.kubeconfigs as samples
 
@@ -39,10 +39,9 @@ class QcTestCase(unittest.TestCase):
             self.kubeconfig_path = kcfg_f.name
 
         # load one profile into here
-        self.kubeconfig = Kubeconfig(kcfg_path=self.kubeconfig_path, kcfg=samples.BASE_TEST_KUBECONFIG)
+        self.qc = QbertConfig(**{'kcfg_path' :self.kubeconfig_path, 'kcfg' :samples.BASE_TEST_KUBECONFIG})
 
-        cloud = None  # where we're going we don't need clouds
-        self.dispatcher = Dispatcher(cloud, self.kubeconfig)
+        self.dispatcher = Dispatcher(self.qc)
 
     def tearDown(self):
         if os.path.exists(self.kubeconfig_path):
