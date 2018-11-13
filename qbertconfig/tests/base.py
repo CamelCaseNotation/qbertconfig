@@ -22,6 +22,9 @@ from qbertconfig.QbertConfig import QbertConfig
 from qbertconfig.cli.dispatcher import Dispatcher
 import tests.samples.kubeconfigs as samples
 
+from mock import patch
+
+
 LOG = logging.getLogger(__name__)
 
 if sys.version_info < (2, 7):
@@ -31,15 +34,18 @@ else:
 
 
 class QcTestCase(unittest.TestCase):
-    def setUp(self):
-        # set vars as if we were a user at the command line
+    @patch('qbertconfig.QbertConfig.QbertConfig._initialize_qbert_client')
+    def setUp(self, mock_qbert_client):
+        # Don't need a working qbert client for unit tests
+        mock_qbert_client.return_value = None
 
         # create temporary file to use for kubeconfig
         with tempfile.NamedTemporaryFile(prefix='qbertconfig', delete=False) as kcfg_f:
             self.kubeconfig_path = kcfg_f.name
 
         # load one profile into here
-        self.qc = QbertConfig(**{'kcfg_path' :self.kubeconfig_path, 'kcfg' :samples.BASE_TEST_KUBECONFIG})
+        # use vars as if we were a user at the command line
+        self.qc = QbertConfig(**{'kcfg_path': self.kubeconfig_path, 'kcfg': samples.BASE_TEST_KUBECONFIG})
 
         self.dispatcher = Dispatcher(self.qc)
 

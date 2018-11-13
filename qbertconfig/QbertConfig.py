@@ -25,6 +25,12 @@ LOG = logging.getLogger(__name__)
 class QbertConfig(object):
     """ Combination of QbertClient and Kubeconfig """
     def __init__(self, **kwargs):
+        # Might not have an initialized qbert client all the time
+        self._initialize_qbert_client(**kwargs)
+        self.master_kubeconfig = Kubeconfig(**kwargs)
+
+    def _initialize_qbert_client(self, **kwargs):
+        self.qbert_client = None
         if kwargs.get('cloud'):
             self.cloud = kwargs['cloud']
         else:
@@ -36,9 +42,7 @@ class QbertConfig(object):
                 # We may not need this, don't fail
                 LOG.warn("Unable to validate openstack credentials."
                          "Bad things may happen soon... Check this error out: \n" + ex.message)
-
         self.qbert_client = QbertClient(os_cloud=self.cloud)
-        self.master_kubeconfig = Kubeconfig(**kwargs)
 
     def save(self):
         """ Saves the current kubeconfig to file """
