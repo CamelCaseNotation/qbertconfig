@@ -26,7 +26,7 @@ LOG = logging.getLogger(__name__)
 class Fetcher(object):
     """ Fetches a Kubeconfig from Qbert """
 
-    def __init__(self, kubeconfig=Kubeconfig(), os_cloud=None):
+    def __init__(self, kubeconfig=None, os_cloud=None):
         if not os_cloud:
             # this will decide whether to use env vars, or a clouds.yaml
             os_cloud = openstack.config.OpenStackConfig()
@@ -34,7 +34,7 @@ class Fetcher(object):
         self._initialize_qbert_client(**kwargs)
         self.master_kubeconfig = Kubeconfig(**kwargs)
 
-    def _initialize_qbert_client(self, os_cloud, cloud_name=None):
+    def _initialize_qbert_client(self, os_cloud):
         """ From a defined OpenStack Cloud, initialize QbertClient
 
         If cloud_name is not specified, the default values 'envvars' and 'defaults' will be used.
