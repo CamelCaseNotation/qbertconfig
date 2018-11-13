@@ -26,7 +26,7 @@ KUBECONFIG_REPEATABLES = ['clusters', 'users', 'contexts']
 
 class Kubeconfig(object):
     """ High level class to describe operations on kubeconfigs """
-    def __init__(self, kcfg_path=None, kcfg_yaml=None, kcfg=None, **kwargs):
+    def __init__(self, kcfg_path=None, kcfg_yaml=None, kcfg=None):
         self.kubeconfig_path = self.determine_location(kcfg_path)
         if kcfg:
             # User provided us with the kubeconfig

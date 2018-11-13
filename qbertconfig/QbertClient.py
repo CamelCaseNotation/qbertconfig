@@ -30,7 +30,7 @@ class QbertClient(object):
             os_cloud: an openstack.config.CloudConfig object
         """
         self.cloud = os_cloud
-        self.client = self.cloud.get_session_client('qbert', version=2)
+        self.client = self.cloud.get_session_client('qbert', version='2')
 
     def list_clusters(self):
         response = self.client.get('/clusters')

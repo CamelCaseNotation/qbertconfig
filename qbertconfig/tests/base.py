@@ -18,11 +18,8 @@ import logging
 import tempfile
 
 # local imports
-from qbertconfig.QbertConfig import QbertConfig
-from qbertconfig.cli.dispatcher import Dispatcher
+from qbertconfig.Kubeconfig import Kubeconfig
 import tests.samples.kubeconfigs as samples
-
-from mock import patch
 
 
 LOG = logging.getLogger(__name__)
@@ -34,20 +31,14 @@ else:
 
 
 class QcTestCase(unittest.TestCase):
-    @patch('qbertconfig.QbertConfig.QbertConfig._initialize_qbert_client')
-    def setUp(self, mock_qbert_client):
-        # Don't need a working qbert client for unit tests
-        mock_qbert_client.return_value = None
-
+    def setUp(self):
         # create temporary file to use for kubeconfig
         with tempfile.NamedTemporaryFile(prefix='qbertconfig', delete=False) as kcfg_f:
             self.kubeconfig_path = kcfg_f.name
 
         # load one profile into here
         # use vars as if we were a user at the command line
-        self.qc = QbertConfig(**{'kcfg_path': self.kubeconfig_path, 'kcfg': samples.BASE_TEST_KUBECONFIG})
-
-        self.dispatcher = Dispatcher(self.qc)
+        self.kubeconfig = Kubeconfig(kcfg_path=self.kubeconfig_path, kcfg=samples.BASE_TEST_KUBECONFIG)
 
     def tearDown(self):
         if os.path.exists(self.kubeconfig_path):

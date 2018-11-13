@@ -25,47 +25,58 @@ LOG = logging.getLogger(__name__)
 
 class Fetcher(object):
     """ Fetches a Kubeconfig from Qbert """
+    def __init__(self, kubeconfig=None, os_config=None, os_cloud=None):
+        """
+        :param kubeconfig: qbertconfig.Kubeconfig object
+        :param os_config: an openstack.config.cloud_config.CloudConfig object
+        :param os_cloud: an openstack.config.cloud_region.CloudRegion object
+        """
+        self.kubeconfig = kubeconfig
+        self.os_config = os_config
+        self.os_cloud = os_cloud
 
-    def __init__(self, kubeconfig=None, os_cloud=None):
-        if not os_cloud:
+        if not self.kubeconfig:
+            self.kubeconfig = Kubeconfig()
+        if not self.os_config:
             # this will decide whether to use env vars, or a clouds.yaml
-            os_cloud = openstack.config.OpenStackConfig()
-        self.qbert_session = _initialize_qbert_client(os_cloud)
-        self._initialize_qbert_client(**kwargs)
-        self.master_kubeconfig = Kubeconfig(**kwargs)
+            self.os_config = openstack.config.OpenStackConfig()
+        self.qbert_session = self._initialize_qbert_client(os_config, os_cloud)
 
-    def _initialize_qbert_client(self, os_cloud):
+    def _initialize_qbert_client(self, os_config=None, os_cloud=None):
         """ From a defined OpenStack Cloud, initialize QbertClient
 
         If cloud_name is not specified, the default values 'envvars' and 'defaults' will be used.
         The cloud 'envvars' will be preferred to 'defaults' if found.
 
         Args:
-            os_cloud: an openstack.config.cloud_config.CloudConfig object
-            cloud_name: the name of the openstack cloud. (if your clouds.yaml has multiple clouds)
+            os_config: an openstack.config.cloud_config.CloudConfig object
 
         Returns;
             An initialized qbertconfig.QbertClient object
         """
+        if os_cloud:
+            self.os_cloud = os_cloud
+            return QbertClient(os_cloud=self.os_cloud)
 
-        if kwargs.get('cloud'):
-            self.cloud = kwargs['cloud']
+        # Cloud not provided, so see if we need to create config and then get cloud
+        if not os_config:
+            self.os_config = openstack.config.OpenStackConfig()
+
+        # Now use config to get a cloud
         else:
-            cloud_config = openstack.config.OpenStackConfig()
-            # Try to get a cloud from OpenStack config
             try:
-                self.cloud = cloud_config.get_one_cloud()
+                self.os_cloud = self.os_config.get_one_cloud()
             except MissingRequiredOptions as ex:
                 # If this fails, it means no other credentials were provided another way
                 LOG.error("Unable to validate openstack credentials. Check this error out: \n" + ex.message)
                 LOG.error("Check to ensure your OpenStack credentials are in clouds.yaml"
                           " or available as environment variables")
                 sys.exit(1)
-        self.qbert_client = QbertClient(os_cloud=self.cloud)
+        return QbertClient(os_cloud=self.os_cloud)
 
     def save(self):
         """ Saves the current kubeconfig to file """
-        self.master_kubeconfig.save()
+        self.kubeconfig.save()
 
     def fetch(self, cluster_name=None, cluster_uuid=None):
         """
@@ -79,7 +90,7 @@ class Fetcher(object):
             KubeConfig object
         """
         LOG.debug("Cluster: '%s' (%s)", cluster_name, cluster_uuid)
-        cluster = self.qbert_client.find_cluster(cluster_uuid, cluster_name)
-        new_kubeconfig = Kubeconfig(kcfg=self.qbert_client.get_kubeconfig(cluster))
-        self.master_kubeconfig.merge_kubeconfigs(new_kubeconfig)
-        return self.master_kubeconfig
+        cluster = self.qbert_session.find_cluster(cluster_uuid, cluster_name)
+        new_kubeconfig = Kubeconfig(kcfg=self.qbert_session.get_kubeconfig(cluster))
+        self.kubeconfig.merge_kubeconfigs(new_kubeconfig)
+        return self.kubeconfig

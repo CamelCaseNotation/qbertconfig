@@ -19,7 +19,8 @@ import openstack
 from keystoneauth1.exceptions import MissingRequiredOptions
 
 # local imports
-from qbertconfig.QbertConfig import QbertConfig
+from qbertconfig.Fetcher import Fetcher
+from qbertconfig.Kubeconfig import Kubeconfig
 from dispatcher import Dispatcher
 
 LOG = logging.getLogger(__name__)
@@ -55,10 +56,13 @@ def main(args=None):
         LOG.warn("Unable to validate openstack credentials."
                  "Bad things may happen soon... Check this error out: \n" + ex.message)
 
-    qc = QbertConfig(**{'kcfg_path': args.kubeconfig, 'cloud': cloud})
+    qc = Fetcher(kubeconfig=Kubeconfig(kcfg_path=args.kubeconfig), os_cloud=cloud)
     dis = Dispatcher(qc)
 
     try:
         dis.do(args.operation, args)
-    except Exception:
-        parser.print_help()
+    except AttributeError:
+        # User specified an operation which doesn't correspond to a method in Dispatcher
+        parser.print_usage()
+    except Exception as e:
+        LOG.error(e)
