@@ -60,5 +60,5 @@ def main(args=None):
 
     try:
         dis.do(args.operation, args)
-    except:
+    except Exception:
         parser.print_help()
