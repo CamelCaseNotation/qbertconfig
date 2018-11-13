@@ -13,6 +13,7 @@
 # under the License.
 import logging
 import openstack
+import sys
 from keystoneauth1.exceptions import MissingRequiredOptions
 
 # Local imports
@@ -24,6 +25,7 @@ LOG = logging.getLogger(__name__)
 
 class QbertConfig(object):
     """ Combination of QbertClient and Kubeconfig """
+
     def __init__(self, **kwargs):
         self._initialize_qbert_client(**kwargs)
         self.master_kubeconfig = Kubeconfig(**kwargs)
@@ -38,9 +40,11 @@ class QbertConfig(object):
             try:
                 self.cloud = cloud_config.get_one_cloud()
             except MissingRequiredOptions as ex:
-                # We may not need this, don't fail
-                LOG.warn("Unable to validate openstack credentials."
-                         "Bad things may happen soon... Check this error out: \n" + ex.message)
+                # If this fails, it means no other credentials were provided another way
+                LOG.error("Unable to validate openstack credentials. Check this error out: \n" + ex.message)
+                LOG.error("Check to ensure your OpenStack credentials are in clouds.yaml"
+                          " or available as environment variables")
+                sys.exit(1)
         self.qbert_client = QbertClient(os_cloud=self.cloud)
 
     def save(self):
