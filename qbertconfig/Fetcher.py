@@ -23,15 +23,31 @@ from Kubeconfig import Kubeconfig
 LOG = logging.getLogger(__name__)
 
 
-class QbertConfig(object):
-    """ Combination of QbertClient and Kubeconfig """
+class Fetcher(object):
+    """ Fetches a Kubeconfig from Qbert """
 
-    def __init__(self, **kwargs):
+    def __init__(self, kubeconfig=Kubeconfig(), os_cloud=None):
+        if not os_cloud:
+            # this will decide whether to use env vars, or a clouds.yaml
+            os_cloud = openstack.config.OpenStackConfig()
+        self.qbert_session = _initialize_qbert_client(os_cloud)
         self._initialize_qbert_client(**kwargs)
         self.master_kubeconfig = Kubeconfig(**kwargs)
 
-    def _initialize_qbert_client(self, **kwargs):
-        self.qbert_client = None
+    def _initialize_qbert_client(self, os_cloud, cloud_name=None):
+        """ From a defined OpenStack Cloud, initialize QbertClient
+
+        If cloud_name is not specified, the default values 'envvars' and 'defaults' will be used.
+        The cloud 'envvars' will be preferred to 'defaults' if found.
+
+        Args:
+            os_cloud: an openstack.config.cloud_config.CloudConfig object
+            cloud_name: the name of the openstack cloud. (if your clouds.yaml has multiple clouds)
+
+        Returns;
+            An initialized qbertconfig.QbertClient object
+        """
+
         if kwargs.get('cloud'):
             self.cloud = kwargs['cloud']
         else:
