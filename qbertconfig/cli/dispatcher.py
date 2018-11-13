@@ -29,5 +29,4 @@ class Dispatcher(object):
     def fetch(self, args):
         cluster_name = args.name if args.name else None
         cluster_uuid = args.uuid if args.uuid else None
-        self.qbert_config.fetch(cluster_name=cluster_name, cluster_uuid=cluster_uuid)
-        self.qbert_config.save()
+        self.qbert_config.fetch(cluster_name=cluster_name, cluster_uuid=cluster_uuid).save()

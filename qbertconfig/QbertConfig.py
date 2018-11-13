@@ -60,9 +60,10 @@ class QbertConfig(object):
             cluster_uuid: ID of the qbert cluster
 
         Returns:
-            The profile name of the kubeconfig added
+            KubeConfig object
         """
         LOG.debug("Cluster: '%s' (%s)", cluster_name, cluster_uuid)
         cluster = self.qbert_client.find_cluster(cluster_uuid, cluster_name)
         new_kubeconfig = Kubeconfig(kcfg=self.qbert_client.get_kubeconfig(cluster))
         self.master_kubeconfig.merge_kubeconfigs(new_kubeconfig)
+        return self.master_kubeconfig
